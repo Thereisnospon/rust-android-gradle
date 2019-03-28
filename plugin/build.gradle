@@ -1,44 +1,5 @@
-plugins {
-    id 'com.gradle.plugin-publish' version '0.9.10' 
-}
-
-apply plugin: "java-gradle-plugin"
-apply plugin: "maven-publish"
-apply plugin: "kotlin"
-
-gradlePlugin {
-    plugins {
-        simplePlugin {
-            id = 'org.mozilla.rust-android-gradle'
-            implementationClass = 'com.nishtahir.RustAndroidPlugin'
-        }
-    }
-}
-
-group 'org.mozilla.rust-android-gradle'
-version "$plugin_version"
-
-publishing {
-    repositories {
-        maven {
-            url "../samples/maven-repo"
-        }
-    }
-    publications {
-        maven(MavenPublication) {
-            groupId 'org.mozilla.rust-android-gradle'
-            artifactId 'rust-android'
-
-            from components.java
-        }
-    }
-}
-
-dependencies {
-    compileOnly gradleApi()
-    implementation "com.android.tools.build:gradle:3.1.2"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
-}
+apply from: new File(spDir(), 'sp_new_java_library.gradle')
+apply plugin: "org.jetbrains.kotlin.jvm"
 
 compileKotlin {
     kotlinOptions.jvmTarget = "1.8"
@@ -47,16 +8,36 @@ compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
 
-pluginBundle { 
-    website = 'https://github.com/ncalexan/rust-android-gradle' 
-    vcsUrl = 'https://github.com/ncalexan/rust-android-gradle.git'
+apply plugin: 'groovy'
+apply plugin: 'maven'
 
-    plugins {
-        rustAndroidPlugin {
-            id = 'org.mozilla.rust-android-gradle.rust-android'
-            displayName = 'Plugin for building Rust with Cargo in Android projects'
-            description = 'A plugin that helps build Rust JNI libraries with Cargo for use in Android projects.'
-            tags = ['rust', 'cargo', 'android']
-        }
-    }
+dependencies {
+    compile gradleApi()//gradle sdk
+    compile localGroovy()//groovy sdk
+
+    compile "com.android.tools.build:gradle-core:3.1.1"
+    //compile 'com.android.tools.build:gradle:3.0.0' //transform api
+    compile "com.android.tools.build:gradle:3.1.1"
+    compile 'com.android.tools.build:transform-api:1.5.0'
+    compile 'commons-io:commons-io:2.5'
+    compile "org.gradle:gradle-core:3.0"
+
+    compile(library["KOTLIN_REFLECT"])
+    compile(library["KOTLIN_STDLIB"])
+    //compile group: 'org.gradle', name: 'gradle-core', version: '3.0'
+    // implementation fileTree(dir: 'libs', include: ['*.jar'])
 }
+
+project.group = "com.thereisnospon"
+project.version = "0.0.0.2"
+
+sourceCompatibility = "1.8"
+targetCompatibility = "1.8"
+
+publishJar {
+    up_projectName = "rust-plugin"
+    up_group = project.group
+    up_version = project.version
+    up_localRepo = false
+}
+
